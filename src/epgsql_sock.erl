@@ -242,7 +242,7 @@ command({connect, Host, Username, Password, Opts}, State) ->
             Async   = proplists:get_value(async, Opts, undefined),
             setopts(State2, [{active, true}]),
             put(username, Username),
-            put(password, Password),
+            put(password, extract_pwd(Password)),
             {noreply,
              State2#state{handler = auth,
                           async = Async}};
@@ -572,6 +572,10 @@ hex(Bin) ->
                (N) when N < 16 -> $W + N
             end,
     <<<<(HChar(H)), (HChar(L))>> || <<H:4, L:4>> <= Bin>>.
+
+extract_pwd(Pwd) when is_function(Pwd) ->
+    apply(Pwd, []);
+extract_pwd(Pwd) -> Pwd.
 
 %% -- backend message handling --
 
